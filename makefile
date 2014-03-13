@@ -28,12 +28,23 @@ ALL = \
 	string \
 	type-id \
 	clocks \
+	myPrintf \
+	exceptions \
+	initialize \
+	mutable \
+	lambda \
+	OOP344_20141_T1_V1 \
+	q \
+	ll \
 
-CXXFLAGS = -m32
+CXX = g++-4.8
+ARCH     = -m32
+CXXFLAGS = $(ARCH) -Wall -ggdb -std=c++0x
+CXXFLAGS = -Wall -ggdb -std=c++0x
 
 all : $(ALL)
 
-# need to line time with -lrt
+# need to link time with -lrt
 clocks: clocks.cpp
 	g++ clocks.cpp -o clocks -lrt
 

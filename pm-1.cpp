@@ -293,4 +293,5 @@ int main(int argc, char **argv)
   main3();
   main4();
   main5();
+  return 0;
 }

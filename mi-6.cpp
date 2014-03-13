@@ -24,7 +24,7 @@ using namespace std;
      }
      void next() {
          increment(where);
-         if (where >= strlen(string))
+         if (where >= (int) strlen(string))
              where = 0;
      }
      virtual void increment(int &n) { n++; }
