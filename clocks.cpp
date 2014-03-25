@@ -1,4 +1,5 @@
-// NOTE clock_gettime must link with -rt (real time library)
+// NOTE clock_gettime must link with librt, the real time library
+// compile with -ltr real time library
 // g++ clocks.cpp -o clocks -lrt
 
 #include <iostream>           // cout ...
@@ -9,8 +10,11 @@ using namespace std;
 #include <time.h>            // clock_gettime
 #include <sys/time.h>        // gettimeofday
 #include <sys/utsname.h>     // uname
+#include <stdlib.h>          // exit
+#include <unistd.h>          // usleep
+// #include <rtl_time.h>        // hrtime_t gethrtime(void);
 
-// typedef long long          int64_t;
+// typedef long long          int64_t;  Not needed.  It is defined by <inttypes.h>
 
 /**
  * CPUID assembler instruction
@@ -82,7 +86,11 @@ void myMachineInfo()
 
 
 class timers {
-// other Linux timers rtc, hwclock, gethrtime
+// This class uses 
+//   RDTSC (CPU instruction count)
+//   clock_gettime (nsec)
+//   gettimeofday (usec)
+// There are other Linux timers rtc, hwclock, gethrtime
 // for Windows, see Windows doc's on QueryPerformanceCounter() 
 private:
     static const clockid_t clk_id = CLOCK_MONOTONIC;
@@ -99,26 +107,47 @@ public:
        return ((uint64_t)a) | (((uint64_t)d) << 32); 
     }
     /**
-     * time in nsec since power up
+     * hr timer (gethrtime) nsec since power up
+     */
+    // uint64_t u64TimeHRNS() { 
+	// real-time Linux function:- can't locate get_high_resolution_time function 
+    	// return (uint64_t) gethrtime(); 
+    // }
+    /**
+     * clock_gettime time in nsec
      */
     uint64_t u64TimeNS() {
-      // return gethrtime(); // real-time Linux function:- can't locate get_high_resolution_time function 
       struct timespec tp;
-      clock_gettime(clk_id, &tp); // nanosec's since power up
+      clock_gettime(0, &tp); // nanosec's since power up
+      return BILLION * tp.tv_sec + tp.tv_nsec; // nsec
+    }
+    /**
+     * clock_getcpuclockid time in nsec
+     */
+    uint64_t u64CpuTimeNS() {
+      struct timespec tp;
+      clockid_t clockid;
+
+      if (clock_getcpuclockid(getpid(), &clockid) != 0) {
+        perror("clock_getcpuclockid");
+        exit(EXIT_FAILURE);
+      }
+      
+      clock_gettime(clk_id, &tp); // nanosec's since power up for this CPU
       return BILLION * tp.tv_sec + tp.tv_nsec; // nsec
     }
 
     /**
-     * return timer resolution
+     * clock_getres timer resolution in nsec
      */
-    uint64_t getResNS() {
+    uint64_t u64getResNS() {
         struct timespec res;
         clock_getres(clk_id, &res);
         return BILLION * res.tv_sec + res.tv_nsec; // nsec
     }
     
     /**
-     * time-of-day usec time
+     * gettimeofday time in usec
      */
     uint64_t u64TimeUS() {
       struct timeval tv;
@@ -130,23 +159,66 @@ public:
 int main(int argc, char **argv) 
 {
     myMachineInfo();
-
+    cout << endl;
 
     timers t;
-    cout << "time resolution = " << t.getResNS() << " nanosec." << endl; // nsec
+    cout << "time resolution = " << t.u64getResNS() << " nanosec." << endl; // nsec
 
     cout << "'sleep(n)' guarantees to sleep for at least 'n' seconds\n";
-    uint64_t startRDTSC = t.u64RDTSC();
-    uint64_t startNS = t.u64TimeNS();
-    uint64_t startUS = t.u64TimeUS();
-    sleep(1);
-    uint64_t stopRDTSC = t.u64RDTSC();
-    uint64_t stopNS = t.u64TimeNS();
-    uint64_t stopUS = t.u64TimeUS();
+    cout << "'usleep(n)' guarantees to sleep for at least 'n' micro-seconds\n";
+    cout << endl;
 
-    cout << "time for sleep(1) = " << stopRDTSC - startRDTSC << " TSC"  << endl;
-    cout << "time for sleep(1) = " << stopNS    - startNS    << " nsec" << endl;
-    cout << "time for sleep(1) = " << stopUS    - startUS    << " usec" << endl;
+
+    uint64_t startRDTSC;
+    uint64_t startNS;
+    uint64_t startCPU_NS;
+    uint64_t startUS;
+    uint64_t stopRDTSC;
+    uint64_t stopNS;
+    uint64_t stopCPU_NS;
+    uint64_t stopUS;
+
+#define SECSLEEP  1
+    startRDTSC  = t.u64RDTSC();
+    startNS     = t.u64TimeNS();
+    startUS     = t.u64TimeUS();
+    startCPU_NS = t.u64CpuTimeNS();
+
+    sleep(SECSLEEP);  // sleep (sec)
+
+    stopRDTSC  = t.u64RDTSC();
+    stopNS     = t.u64TimeNS();
+    stopUS     = t.u64TimeUS();
+    stopCPU_NS = t.u64CpuTimeNS();
+
+    cout << "time for sleep("<< SECSLEEP << ") = " << stopRDTSC  - startRDTSC  << " TSC"  << endl;
+    cout << "time for sleep("<< SECSLEEP << ") = " << stopNS     - startNS     << " nsec" << endl;
+    cout << "time for sleep("<< SECSLEEP << ") = " << stopCPU_NS - startCPU_NS << " nsec - CPU clock" << endl;
+    cout << "time for sleep("<< SECSLEEP << ") = " << stopUS     - startUS     << " usec, " 
+         << stopUS - startUS - 1000000 * SECSLEEP  << " usec overhead" << endl;
+    cout << endl;
+
+    for(int napTime = 5; napTime <= 1000000; napTime *=10) {
+        startRDTSC  = t.u64RDTSC();
+        startNS     = t.u64TimeNS();
+        startUS     = t.u64TimeUS();
+        startCPU_NS = t.u64CpuTimeNS();
+
+        usleep(napTime);  // microsecond sleep (usec)
+    
+        stopRDTSC  = t.u64RDTSC();
+        stopNS     = t.u64TimeNS();
+        stopUS     = t.u64TimeUS();
+        stopCPU_NS = t.u64CpuTimeNS();
+
+        cout << "time for usleep("<< napTime << ") = " << stopRDTSC - startRDTSC  << " TSC"  << endl;
+        cout << "time for usleep("<< napTime << ") = " << stopNS    - startNS     << " nsec" << endl;
+        cout << "time for usleep("<< napTime << ") = " << stopCPU_NS- startCPU_NS << " nsec - CPU clock" << endl;
+        cout << "time for usleep("<< napTime << ") = " << stopUS    - startUS     << " usec, "
+             << stopUS - startUS - napTime  << " usec overhead" << endl;
+
+        cout << endl;
+    }
 }
 
-/* vim: set cin et ts=2 sw=2 cino=>1s,e0,n0,f0,{0,}0,^0,\:1s,=0,g1s,h0,t0,+1s,c3,(0,u0 : */
+/* vim: set cin et ts=4 sw=4 cino=>1s,e0,n0,f0,{0,}0,^0,\:1s,=0,g1s,h0,t0,+1s,c3,(0,u0 : */

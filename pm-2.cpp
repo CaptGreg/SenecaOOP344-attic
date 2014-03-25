@@ -63,6 +63,7 @@ std::cout <<"main1: Subtype Polymorphism (Runtime Polymorphism \n";
  do_meowing(&cat);
  do_meowing(&tiger);
  do_meowing(&ocelot);
+ return 0;
 }
 
 // Here the main program passes pointers to cat, tiger and ocelot to do_meowing function that expects a pointer to Felid. Since they are all Felids, the program calls the right meow function for each felid and the output is:
@@ -94,6 +95,7 @@ std::cout <<"main2: Parametric Polymorphism (Compile-Time Polymorphism) \n";
 
  std::string foo("foo"), bar("bar");
  std::cout << ::max(foo, bar) << std::endl; // "foo"
+ return 0;
 }
 
 // Here the max function is polymorphic on type T. Note, however, that it doesn't work on pointer types because comparing pointers compares the memory locations and not the contents. To get it working for pointers you'd have to specialize the template for pointer types and that would no longer be parametric polymorphism but would be ad-hoc polymorphism.
@@ -120,9 +122,10 @@ std::string add(const char *a, const char *b) {
 
 int main3() {
  
-std::cout <<"main3: Parametric Polymorphism (Compile-Time Polymorphism) mixing ints and strings \n";
+ std::cout <<"main3: Parametric Polymorphism (Compile-Time Polymorphism) mixing ints and strings \n";
  std::cout << add(5, 9) << std::endl;
  std::cout << add("hello ", "world") << std::endl;
+ return 0;
 }
 
 // Ad-hoc polymorphism also appears in C++ if you specialize templates. Returning to the previous example about max function, here is how you'd write a max for two char *,
@@ -160,8 +163,9 @@ void moo(A a) {
 }
 
 int main4() {
-std::cout <<"main4: coercion Polymorphism (Casting)\n";
+ std::cout <<"main4: coercion Polymorphism (Casting)\n";
  moo(55);     // prints 55
+ return 0;
 }
 
 // If you made the constructor of A explicit, that would no longer be possible. It's always a good idea to make your constructors explicit to avoid accidental conversions.
@@ -186,10 +190,11 @@ void print_int(int a) {
 }
 
 int main5() {
-std::cout <<"main5: coercion Polymorphism (Casting) with operator, operator int() ... \n";
+ std::cout <<"main5: coercion Polymorphism (Casting) with operator, operator int() ... \n";
  CrazyInt b = 55;
  print_int(999);    // prints 999
  print_int(b);      // prints 55
+ return 0;
 }
 
 // Subtype polymorphism that I discussed earlier is actually also coercion polymorphism because the derived class gets converted into base class type.
@@ -204,4 +209,5 @@ int main(int argc, char ** argv)
   main3();
   main4();
   main5();
+ return 0;
 }

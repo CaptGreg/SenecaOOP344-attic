@@ -28,14 +28,35 @@ ALL = \
 	string \
 	type-id \
 	clocks \
+	myPrintf \
+	exceptions \
+	initialize \
+	mutable \
+	lambda \
+	OOP344_20141_T1_V1 \
+	ll2 \
+	q \
+	q2 \
+	str-namespace \
+	cppcallc \
+	getopt \
+	getsubopt \
 
-CXXFLAGS = -m32
+CXX = g++-4.8
+ARCH     = -m32
+CXXFLAGS = $(ARCH) -Wall -ggdb -std=c++0x
+CXXFLAGS = -Wall -ggdb -std=c++0x
 
 all : $(ALL)
 
-# need to line time with -lrt
+# "clocks" need to link with -lrt to use the time functions
 clocks: clocks.cpp
 	g++ clocks.cpp -o clocks -lrt
 
+cppcallc  : cppcallc.cpp cfun.h cfun.c
+	g++ -c cppcallc.cpp
+	gcc -c cfun.c
+	g++ cppcallc.o cfun.o -o cppcallc
+
 clean:
-	rm $(ALL)
+	rm $(ALL) *.o
