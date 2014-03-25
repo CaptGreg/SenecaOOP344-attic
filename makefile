@@ -41,6 +41,7 @@ ALL = \
 	cppcallc \
 	getopt \
 	getsubopt \
+	ll \
 
 CXX = g++-4.8
 ARCH     = -m32
@@ -50,6 +51,7 @@ CXXFLAGS = -Wall -ggdb -std=c++0x
 all : $(ALL)
 
 # "clocks" need to link with -lrt to use the time functions
+# need to link time with -lrt
 clocks: clocks.cpp
 	g++ clocks.cpp -o clocks -lrt
 
