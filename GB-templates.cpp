@@ -32,6 +32,15 @@ private:
   Pt2d <double>  _p;
 };
 
+class Pt2d_i {
+public:
+  Pt2d_i () {}
+  Pt2d_i (int x, int y) { _p.setX(x); _p.setY(y); }
+private:
+  Pt2d <int>  _p;
+};
+
+
 
 template <typename T>
 class Pt3d {

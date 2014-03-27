@@ -21,56 +21,65 @@
 // Polymorphic Cats
 // Polymorphic cats on a mat by James Halliday.
 
-// Since they are all of Felidae biological family, and they all should be able to meow, they can be represented as classes inheriting from Felid base class and overriding the meow pure virtual function,
+// Since they are all of CatFamilyae biological family, and they all should be able to meow, they can be represented as classes inheriting from CatFamily base class and overriding the meow pure virtual function,
 
 #include <iostream>
 // #include "cats.h"
 // file cats.h
 
-class Felid {
+class CatFamily {
 public:
- virtual void meow() = 0;
+ virtual void meow(int duration) = 0;
+ // virtual
+ // void meow()
+ // {
+   // std::cout << " someone called the base class\n";
+ // }
 };
 
-class Cat : public Felid {
+class Cat : public CatFamily {
 public:
- void meow() { std::cout << "Meowing like a regular cat! meow!\n"; }
+ void meow(int duration) { while(duration--) std::cout << "Meowing like a regular cat! meow!\n"; }
 };
 
-class Tiger : public Felid {
+class Tiger : public CatFamily {
 public:
- void meow() { std::cout << "Meowing like a tiger! MREOWWW!\n"; }
+ void meow(int duration) { while(duration--) std::cout << "Meowing like a tiger! ROAR!\n"; }
 };
 
-class Ocelot : public Felid {
+class Cougar : public CatFamily {
 public:
- void meow() { std::cout << "Meowing like an ocelot! mews!\n"; }
+ void meow(int duration) { while(duration--) std::cout << "Meowing like an cougar! hiss!\n"; }
 };
 
-// Now the main program can use Cat, Tiger and Ocelot interchangeably through Felid (base class) pointer,
+// Now the main program can use Cat, Tiger and Cougar interchangeably through CatFamily (base class) pointer,
 
 
-void do_meowing(Felid *cat) {
- cat->meow();
+void do_meowing(CatFamily *cat) {
+ static int duration = 1;
+ std::cout << "do_meowing: duration=" << duration << std::endl;
+ cat->meow(duration++);
 }
 
 int main1() {
 std::cout <<"main1: Subtype Polymorphism (Runtime Polymorphism \n";
+ // CatFamily cf;
  Cat cat;
  Tiger tiger;
- Ocelot ocelot;
+ Cougar cougar;
 
+ // do_meowing(&cf);
  do_meowing(&cat);
  do_meowing(&tiger);
- do_meowing(&ocelot);
+ do_meowing(&cougar);
  return 0;
 }
 
-// Here the main program passes pointers to cat, tiger and ocelot to do_meowing function that expects a pointer to Felid. Since they are all Felids, the program calls the right meow function for each felid and the output is:
+// Here the main program passes pointers to cat, tiger and cougar to do_meowing function that expects a pointer to CatFamily. Since they are all CatFamilys, the program calls the right meow function for each felid and the output is:
 
 // Meowing like a regular cat! meow!
 // Meowing like a tiger! MREOWWW!
-// Meowing like an ocelot! mews!
+// Meowing like an cougar! hiss!
 
 // Subtype polymorphism is also called runtime polymorphism for a good reason. The resolution of polymorphic function calls happens at runtime through an indirection via the virtual table. Another way of explaining this is that compiler does not locate the address of the function to be called at compile-time, instead when the program is run, the function is called by dereferencing the right pointer in the virtual table.
 
@@ -93,7 +102,7 @@ int main2() {
 std::cout <<"main2: Parametric Polymorphism (Compile-Time Polymorphism) \n";
  std::cout << ::max(9, 5) << std::endl;     // 9
 
- std::string foo("foo"), bar("bar");
+ std::string foo("aaaaaaafoo"), bar("aaaaaaabar");
  std::cout << ::max(foo, bar) << std::endl; // "foo"
  return 0;
 }
@@ -142,8 +151,9 @@ const char *max(const char *a, const char *b) {
 
 // Coercion happens when an object or a primitive is cast into another object type or primitive type. For example,
 
-float b = 6; // int gets promoted (cast) to float implicitly
-int a = 9.99; // float gets demoted to int implicitly
+float b = 6;          // int gets promoted (cast) to float implicitly
+int   a = 9.99;       // float gets demoted to int implicitly
+int   r = 9.99 + 0.5; // float gets demoted to int implicitly
 
 // Explicit casting happens when you use C's type-casting expressions, such as (unsigned int *) or (int) or C++'s static_cast, const_cast, reinterpret_cast, or dynamic_cast.
 
@@ -191,9 +201,11 @@ void print_int(int a) {
 
 int main5() {
  std::cout <<"main5: coercion Polymorphism (Casting) with operator, operator int() ... \n";
- CrazyInt b = 55;
+ CrazyInt b2 = 123456;
+ CrazyInt b(59);
  print_int(999);    // prints 999
- print_int(b);      // prints 55
+ print_int(b);      // prints 59
+ print_int(b2);      // prints 59
  return 0;
 }
 
