@@ -34,14 +34,17 @@ ALL = \
 	mutable \
 	lambda \
 	OOP344_20141_T1_V1 \
+	ll \
 	ll2 \
+	ll2-problem \
 	q \
 	q2 \
 	str-namespace \
 	cppcallc \
 	getopt \
 	getsubopt \
-	ll \
+	ll-xor \
+	bintree \
 
 CXX = g++-4.8
 ARCH     = -m32

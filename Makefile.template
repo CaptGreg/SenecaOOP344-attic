@@ -1,0 +1,189 @@
+# $@ The name of the target.
+# $% The target member name, when the target is an archive member.
+# $< The name of the first (or only) prerequisite.
+# $? The names of all the prerequisites that are newer than the target, with spaces between them.
+# $^
+# $+ The names of all the prerequisites, with spaces between them. The value of $^ omits duplicate prerequisites, while $+ retains them and preserves their order.
+# $* The stem with which an implicit rule matches.
+# $(@D)
+# $(@F) The directory part and the file-within-directory part of $@
+# $(*D)
+# $(*F) The directory part and the file-within-directory part of $*
+# $(%D)
+# $(%F) The directory part and the file-within-directory part of $%
+# $(<D)
+# $(<F) The directory part and the file-within-directory part of $<
+# $(^D)
+# $(^F) The directory part and the file-within-directory part of $^
+# $(+D)
+# $(+F) The directory part and the file-within-directory part of $+
+# $(?D)
+# $(?F) The directory part and the file-within-directory part of $?
+
+# GNU Make | Functions for Transforming Text
+#     General syntax: $(function arguments)
+#     Example: $(subst ee,EE,feet on the street) Returns: fEEt on the strEEt
+# $(subst from,to,text)                Replace from with to in text.
+# $(patsubst pattern,replacement,text) Replace words matching pattern with replacement in text.
+# $(strip string)                      Remove excess whitespace characters from string.
+# $(findstring find,text)              Locate find in text.
+# $(filter pattern...,text)            Select words in text that match one of the pattern words.
+# $(filter-out pattern...,text)        Select words in text that do not match any of the pattern words.
+# $(sort list)                         Sort the words in list lexicographically, removing duplicates.
+# $(dir names...)                      Extract the directory part of each file name.
+# $(notdir names...)                   Extract the non-directory part of each file name.
+# $(suffix names...)                   Extract the suffix (the last dot and following characters) of each file name.
+# $(basename names...)                 Extract the base name (name without suffix) of each file name.
+# $(addsuffix suffix,names...)         Append suffix to each word in names.
+# $(addprefix prefix,names...)         Prepend prefix to each word in names.
+# $(join list1,list2)                  Join two parallel lists of words.
+# $(word n,text)                       Extract the nth word (one-origin) of text.
+# $(words text)                        Count the number of words in text.
+# $(wordlist s,e,text)                 Returns the list of words in text from s to e.
+# $(firstword names...)                Extract the first word of names.
+# $(wildcard pattern...)               Find file names matching a shell file name pattern (not a `%' pattern).
+# $(error text...)                     When this function is evaluated, make generates a fatal error with the message text.
+# $(warning text...)                   When this function is evaluated, make generates a warning with the message text.
+# $(shell command)                     Execute a shell command and return its output.
+# $(origin variable)                   Return a string describing how the make variable variable was defined.
+# $(foreach var,words,text)            Evaluate text with var bound to each word in words, and concatenate the results.
+# $(call var,param,...)                Evaluate the variable var replacing any references to $(1),$(2) with the first, second, etc. param values.
+
+# Rules can be written in one line for short rules
+#     target(s) : [prerequisites] [; shell-command(s)]
+
+# .PHONY prerequisites of .PHONY are considered to be phony targets. make will run its
+#       commands regardless of whether a file with that name exists or what its last-modification time is.
+# .IGNORE prerequisites for .IGNORE ignore errors in execution of the commands run for those particular files.
+
+# GNU Make | Variables and their flavours (1)
+#     Recursively expanded variable:
+#         They are defined by lines using '='
+#         (or by define directive for values with newlines).
+#         The value is stored verbatim and expanded whenever the value is substituted.
+#         Examples:
+#         foo = $(bar)
+#         bar = $(ugh)
+#         ugh =                    Hi there!
+#         all:;echo $(foo)   # prints 'Hi there!' (whitespace is gone!)
+#         CFLAGS = $(include_dirs) -O  # It is OK because value is ...
+#         include_dirs = -Ifoo -Ibar   # ... stored verbatim! (advantage)
+#         CFLAGS = $(CFLAGS) -O        # INFINITE LOOP! (disadvantage)
+
+#    Simply expanded variables:
+#        They are defined by lines using ':='.
+#        The value of a simply expanded variable is scanned once and for all,
+#        expanding any references to other variables and functions, when the
+#        variable is defined.
+#        Example:
+#        x := foo
+#        y := $(x) bar
+#        x := later
+#        is equivalent to
+#        y := foo bar
+#        x := later
+
+# GNU Make | substitution reference
+#    Syntax: $(variable:a=b)
+#    A substitution reference replaces every a at the end of a word with b in that value, and substitute the resulting string.
+#    Example:
+#    foo := a.o b.o c.o
+#    bar := $(foo:.o=.c) # variable 'bar' contains: 'a.c b.c c.c'
+
+
+# Variables from command line argument:
+#
+# $ make variablename=value   # make looks for '=' character
+#
+# Note: Ordinary assignments of the same variable in the makefile are ignored. You may override them though:
+#
+# override var1 = value    # recursive expanded variable
+# override var2 := value   # simple expanded variable
+# To append more text to a variable defined on the command line:
+# override var3 += more text
+#
+# Why is it useful?
+# CFLAGS=-g                # serves as default value
+# cc -c $(CFLAGS) foo.c
+# and in shell run: $ make CFLAGS='-g -O'.
+
+SRC=main.cpp hello.cpp factorial.cpp
+EXE=hello
+
+# all: $(SRC) $(EXE)
+
+# more involved example
+
+TESTSRC = testdeq.cc testperf.cc
+TESTOBJ = $(TESTSRC:%.cc=%.o)
+TESTEXE = $(TESTSRC:%.cc=%)
+
+LIBSRC = template.cc DequeHelper.cc deque.cc HeapStats.cc
+LIBHEADER = DequeHelper.h deque.h adeque.h HeapStats.h Error.h
+LIBOBJ = $(LIBSRC:%.cc=%.o)
+
+SRC = $(LIBSRC) $(TESTSRC)
+HEADER = $(LIBHEADER)
+OBJ = $(LIBOBJ) $(TESTOBJ)
+EXE = $(TESTEXE)
+
+
+VERSION = RELEASE
+VERSION = PROFILE
+VERSION = DEBUG
+
+DEBUG_CFLAGS   = -ggdb -O0 -DUSE_HEAP_STATS
+PROFILE_CFLAGS = -pg -O3
+RELEASE_CFLAGS = -O3
+
+ifeq "$(VERSION)" "PROFILE"
+CFLAGS =+ $(PROFILE_CFLAGS)
+else
+ifeq "$(VERSION)" "DEBUG"
+CFLAGS =+ $(DEBUG_CFLAGS)
+else
+ifeq "$(VERSION)" "RELEASE"
+CFLAGS =+ $(RELEASE_CFLAGS)
+endif
+endif
+endif
+
+
+CXX       = clang++
+CXX       = g++
+CC        = $(CXX)
+CXXFLAGS  = -c -Wall
+CPPFLAGS  = -I /usr/local/include -DRUN=123
+CXXFLAGS  += $(CFLAGS)
+CXXFLAGS  += $(CPPFLAGS)
+LDFLAGS   =
+OBJECTS   = $(SRC:.cpp=.o)
+
+# OBJ = $(addsuffix .o, $(basename $(SRC)))
+
+all: $(TESTEXE)
+
+# one line rules
+# target(s) : [prerequisites] [; shell-command(s)]
+#  $(EXE)   : $(OBJECTS)      ; $(CXX) $(LDFLAGS) $(OBJECTS) -o $@
+#  .cpp.o   :                 ; $(CXX) $(CXXFLAGS) $< -o $@
+#  clean    :                 ; rm -f $(OBJ) $(EXE)
+
+$(EXE): $(OBJECTS)
+	$(CXX) $(LDFLAGS) $(OBJECTS) -o $@
+
+.cpp.o:
+	$(CXX) $(CXXFLAGS) $< -o $@
+
+clean:
+	rm -f $(OBJ) $(EXE)
+
+
+# There is a neat utility called makedepend which can go through your source code and see which files #include which other ones. It's used like this: makedepend [options] source-files. For options, -Idirectory tells it to look in directory for include files, and -Ydirectory tells it not to look in directory. Just -Y by itself means not to look at any of the system include directories. You can give as many -I and -Y options as you need. Makedepend ignores any options it doesn't understand; this is useful as you'll see below.
+#
+# If you give it -Y, it will probably spit out a bunch of stuff about not being able to find iostream.h and so on. Just ignore these messages.
+#
+# After makedepend scans your source code, it tacks the resulting dependency rules onto the end of your makefile and saves you a ton of typing.
+
+depend:
+	makedepend $(CXXFLAGS) -Y $(SRC)

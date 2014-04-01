@@ -52,15 +52,19 @@ T Stack<T>::top () const
 int main()
 {
     try {
-        Stack<int>         intStack;  // stack of ints
-        Stack<string> stringStack;    // stack of strings
-
         // manipulate int stack
+        Stack<int>         intStack;  // stack of ints
         intStack.push(7);
+        intStack.push(8);
+        intStack.push(9);
         cout << intStack.top() <<endl;
 
         // manipulate string stack
+        Stack<string> stringStack;    // stack of strings
         stringStack.push("hello");
+        stringStack.push("goodbye");
+        stringStack.push("nihao");
+        stringStack.push("zaijian");
         cout << stringStack.top() << std::endl;
         stringStack.pop();
         stringStack.pop();
