@@ -1,6 +1,17 @@
 # pm = poly-morphism
 # mi = mulitple-inheritence
 
+ARCH     = -m32
+CXXFLAGS = $(ARCH) -Wall -ggdb -std=c++11 -pthread
+
+CXX = clang++
+CC  = clang
+CXX = g++-4.8
+CC  = gcc-4.8
+CXX = g++
+CC  = gcc
+
+
 ERRORS = \
 	ll-dbl \
 	stl-iterators \
@@ -55,30 +66,28 @@ ALL = \
 	getsubopt \
 	ll-xor \
 	bintree \
-	c++threads \
 	c_str \
 	cirq \
 	copyswap \
 	iter-diy \
 	xor \
-
-ARCH     = -m32
-CXXFLAGS = $(ARCH) -Wall -ggdb -std=c++11
-
-CXX = clang++
-CXX = g++-4.8
+	cppthreads \
 
 all : $(ALL)
 
 # "clocks" need to link with -lrt to use the time functions
 # need to link time with -lrt
 clocks: clocks.cpp
-	g++ clocks.cpp -o clocks -lrt
+	$(CXX) clocks.cpp -o clocks -lrt
 
 cppcallc  : cppcallc.cpp cfun.h cfun.c
-	g++ -c cppcallc.cpp
-	gcc -c cfun.c
-	g++ cppcallc.o cfun.o -o cppcallc
+	$(CXX) -c cppcallc.cpp
+	$(CC) -c cfun.c
+	$(CXX) cppcallc.o cfun.o -o cppcallc
+
+cppthreads : cppthreads.cpp Makefile
+	$(CXX) $(CXXFLAGS) -pthread   cppthreads.cpp -o cppthreads
+
 
 clean:
 	rm $(ALL) *.o

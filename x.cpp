@@ -1,3 +1,5 @@
+// g++ x.cpp parms.cpp -o parms
+
 #include "x.h"
 
 #include <iostream>

@@ -13,10 +13,10 @@
 
 
 // GB works with both compilers
-// g++     -std=c++0x   c++threads.cpp -pthread -o c++threads && ./c++threads
+// g++     -std=c++11   cppthreads.cpp -pthread -o cppthreads && ./cppthreads
 // foo
 // bar
-// clang++ -std=c++11   c++threads.cpp -pthread -o c++threads && ./c++threads
+// clang++ -std=c++11   cppthreads.cpp -pthread -o cppthreads && ./cppthreads
 // c++threads.cpp:14:1: warning: control reaches end of non-void function [-Wreturn-type]
 // foo
 // bar
@@ -41,6 +41,9 @@ int main(int argc, char**argv)
     }
     catch(const exception& e) {
         cerr << "caught " << e.what() << endl;
+        cerr << "Check how this file was compiled.\n";
+        cerr << "g++ command:     'g++         -std=c++11   cppthreads.cpp -pthread -o cppthreads'\n";
+        cerr << "or with clang++: 'clang++     -std=c++11   cppthreads.cpp -pthread -o cppthreads'\n";
     }
 
     return 0;

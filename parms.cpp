@@ -1,3 +1,8 @@
+
+// g++ x.cpp parms.cpp -o parms
+
+// demo passing parms to subroutines by value, by address, by reference
+
 #include <iostream>
 using namespace std;
 
@@ -10,6 +15,8 @@ void y3(int &x) {  x = 47; cout << "inside y3  x = " <<  x << endl; }
 int main(int argc, char **arg, char **env)
 {
 	int x = 19;
+
+	cout << "demo passing parms to subroutines by value, by address, by reference\n";
 
 	cout << "x = " << x << endl;
 
