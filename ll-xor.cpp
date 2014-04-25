@@ -1,12 +1,34 @@
+// Algo 1 push head+tail, walk head+tail
+// Algo 2 push head, walk head
+// Algo 3 push head, walk head+tail
+// Algo 4 pop+push+walk from head+tail              <== best algorithm
+// Algo 5 push head, walk head+tail
 #if 0
-XOR is a very interesting logical operator that can be difficult to understand.  There is a bitwise operator refresher located here.  The basic rules are:
+XOR is a very interesting logical operator.  The basic rules are:
 
-    0 ^ 0 = 0
-    A ^ 0 = A
-    A ^ A = 0
-    A ^ B = B ^ A
-    (A ^ B) ^ A = B
-    (B ^ A) ^ B = A
+
+1.    0 ^ 0 = 0
+2.    A ^ 0 = A
+3.    A ^ ~0 = ~A
+4.    A ^ A = 0
+5.    A ^ B = B ^ A
+6.    (A ^ B) ^ A = B
+7.    (B ^ A) ^ B = A
+8.    (A ^ B) ^ C = A ^ (B ^ C)
+
+Or in English, it is the bit-by-bit difference between two values.
+
+1.    see 4.
+2.    The difference between a value and zero is the original value.
+3.    The difference between a value and ones is the complement of the original value.
+4.    If the values are identical, there are no differences, the result is zero.
+5.    The order of operation does not matter. (^ is commutative)
+6,7   bit-differences between two operands with one of the operands recovers the other operand.
+8.    ^ is associative
+
+Corollories
+     A ^ B = (A | B) & ~(A & B)
+     A ^ B = (A & ~B) | (~A & B)
 
 When we apply this, instead of having a ‘next’ and ‘prev’ like a normal linked list, we have one ‘NextPrev’ that holds the XOR of both the ‘next’ and ‘prev’.
 
@@ -14,19 +36,34 @@ When we apply this, instead of having a ‘next’ and ‘prev’ like a normal 
     Next = NextPrev ^ Prev
     Prev = NextPrev ^ Next
 
-Based on the rules above, both head ( with Next as 0 ) and tail (with Prev as 0) maintain the actual pointer to the next object because XOR with zero leaves the original bits.  As a side effect the head and tail pointers are the only entry points.  If there is a pointer to an object in the middle of the list, there is no way to traverse from that object without knowing the actual next or previous item.  Another caveat is that debuggers will not be able to recognize the pointers in the list other than ‘head->prev’ and ‘tail->next’.
+Based on the rules above, both head ( with Next as 0 ) and tail (with Prev as 0) maintain the actual pointer to the next object because XOR with zero leaves the original bits.  As a side effect the head and tail pointers are the only entry points.  If there is a pointer to an object in the middle of the list, there is no way to traverse from that object without knowing the actual next or previous item.
 
-
+To delete current:
 Keep track of previous node.
 next = current.x ^ previous;
-To delete current:
 prev.x = prev.x ^ current ^ next;
 next.x = next.x ^ current ^ prev;
-#endif
 
-// algo1
-// derived from http://stackoverflow.com/questions/3531972/c-code-for-xor-linked-list
-// converted in-line code to class XorLL;
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Subtraction linked list
+
+...  A        B         C         D         E  ...
+        <–>  C-A  <->  D-B  <->  E-C  <->
+
+     diff = next - prev
+     next = diff + prev :  C = (C-A) + A
+     prev = next - diff :  A = C - (C-A)
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Addition linked list
+
+...  A        B         C         D         E  ...
+        <–>  A+C  <->  B+D  <->  C+E  <->
+
+     sum  = next + prev
+     next = sum - prev
+     prev = sum - next
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#endif
 
 #include <iostream>
 #include <stdint.h>  // intptr_t
@@ -38,23 +75,27 @@ public:
    Node  *npx; /* npx=XOR of next and previous node */
 };
 
-class XorLL {
+///////////////////////// Algo 1 /////////////////////////
+// derived from http://stackoverflow.com/questions/3531972/c-code-for-xor-linked-list
+// converted in-line code to class Algo1LL;
+// Algo 1 push head+tail, walk head+tail
+
+class Algo1LL {
 private:
     Node *head;
     Node *tail;
     int count;
 public:
-    XorLL() : head(nullptr), tail(nullptr), count(0) {}
-    ~XorLL() {
-    }
+    Algo1LL() : head(nullptr), tail(nullptr), count(0) {}
+    ~Algo1LL() { }
 
 private:
     // traverse the list given either the head or the tail
-    void traverse( Node *start )  // point to head or tail
+    void traverse( Node *root )  // point to head or tail
     {
        Node *prev, *curr;
 
-       curr = prev = start;
+       curr = prev = root;
        while ( curr ) {
           cout <<"data = " <<curr->data <<endl;
           if ( curr->npx == curr ) {
@@ -134,7 +175,7 @@ public:
 int main1( int argc, char* argv[] )
 {
     int   data = 1;
-    XorLL ll;
+    Algo1LL ll;
 
     ll.pushHead(data++);
     ll.pushTail(data++);
@@ -151,104 +192,109 @@ int main1( int argc, char* argv[] )
 }
 
 
-// algo2
+///////////////////////// Algo 2 /////////////////////////
 // XOR LL #2
 // http://www.geeksforgeeks.org/xor-linked-list-a-memory-efficient-doubly-linked-list-set-1/
 // http://www.geeksforgeeks.org/xor-linked-list-a-memory-efficient-doubly-linked-list-set-2/
+// Algo 2 push head, walk head
 
-/* C/C++ Implementation of Memory efficient Doubly Linked List */
+// GB XOR of anything with zero is anything, simplify + eliminate XOR with zero
+// GB convert to C++
 
-// Node structure of a memory efficient doubly linked list
+// Insert a node at the begining of the XORed linked list and makes the
+// newly inserted node as head
+class Algo2LL {
+    private:
+        Node *head;
+    public:
+        Algo2LL () { head = nullptr; }
+        void insert(int data)
+        {
+            // Allocate memory for new node
+            Node *new_node  = new Node;
+            new_node->data = data;
 
-/* returns XORed value of the node addresses */
-Node* XOR (Node *a, Node *b)
-{
-    return (Node*)((uintptr_t)(a) ^ (uintptr_t)(b));
-}
+            /* Since new node is being inserted at the begining, npx of new node
+               will always be XOR of current head and nullptr */
+            new_node->npx = head;
 
-/* Insert a node at the begining of the XORed linked list and makes the
-   newly inserted node as head */
-void insert(Node **head_ref, int data)
-{
-    // Allocate memory for new node
-    Node *new_node  = new Node;
-    new_node->data = data;
+            /* If linked list is not empty, then npx of current head node will be XOR
+               of new node and node next to current head */
+            if ( head ) {
+                // head->npx is XOR of nullptr and next. So if we do XOR of
+                // it with nullptr, we get next
+                Node* next = head->npx;
+                head->npx = (Node*) ((uintptr_t) new_node ^ (uintptr_t) next);
+            }
 
-    /* Since new node is being inserted at the begining, npx of new node
-       will always be XOR of current head and nullptr */
-    new_node->npx = XOR(*head_ref, nullptr);
+            // Change head
+            head = new_node;
+        }
 
-    /* If linked list is not empty, then npx of current head node will be XOR
-       of new node and node next to current head */
-    if (*head_ref != nullptr) {
-        // *(head_ref)->npx is XOR of nullptr and next. So if we do XOR of
-        // it with nullptr, we get next
-        Node* next = XOR((*head_ref)->npx,  nullptr);
-        (*head_ref)->npx = XOR(new_node, next);
-    }
+        void traverse()
+        {
+           Node *prev, *curr;
 
-    // Change head
-    *head_ref = new_node;
-}
+           cout <<"Algo 2 traverse: Following are the nodes of Linked List: ";
 
-void traverse2( Node *start )  // point to head or tail
-{
-   Node *prev, *curr;
+           curr = prev = head;
+           while ( curr ) {
+              cout <<curr->data <<" ";
+              if ( curr->npx == curr ) {
+                 break; // done
+              }
+              if ( curr == prev ) {
+                 curr = curr->npx;   // start of list
+              } else {
+                 Node *save = curr;
+                 curr = (Node*)((uintptr_t)prev ^ (uintptr_t)curr->npx);
+                 prev = save;
+              }
+           }
+           cout <<endl;
+        }
 
-   curr = prev = start;
-   while ( curr ) {
-      cout <<"traverse = " <<curr->data <<endl;
-      if ( curr->npx == curr ) {
-         break; // done
-      }
-      if ( curr == prev ) {
-         curr = curr->npx;   // start of list
-      } else {
-         Node *save = curr;
-         curr = (Node*)((uintptr_t)prev ^ (uintptr_t)curr->npx);
-         prev = save;
-      }
-   }
-}
+        // prints contents of doubly linked list in forward direction
+        void printList()
+        {
+            Node *curr = head;
+            Node *prev = nullptr;
+            Node *next;
 
-// prints contents of doubly linked list in forward direction
-void printList (Node *head)
-{
-    Node *curr = head;
-    Node *prev = nullptr;
-    Node *next;
+            cout <<"Algo 2 printList: Following are the nodes of Linked List: ";
 
-    cout <<"Algo 2: Following are the nodes of Linked List: ";
+            while ( curr ) {
+                // print current node
+                cout <<curr->data <<" ";
 
-    while (curr != nullptr) {
-        // print current node
-        cout <<curr->data <<" ";
+                // get address of next node: curr->npx is next^prev, so curr->npx^prev
+                // will be next^prev^prev which is next
+                next = (Node*) ((uintptr_t) prev ^ (uintptr_t) curr->npx);
 
-        // get address of next node: curr->npx is next^prev, so curr->npx^prev
-        // will be next^prev^prev which is next
-        next = XOR (prev, curr->npx);
-
-        // update prev and curr for next iteration
-        prev = curr;
-        curr = next;
-    }
-    cout <<endl;
-}
+                // update prev and curr for next iteration
+                prev = curr;
+                curr = next;
+            }
+            cout <<endl;
+        }
+};
 
 // Driver program to test above functions
 int main2( int argc, char* argv[] )
 {
     /* Create following Doubly Linked List
        head-->40<-->30<-->20<-->10   */
-    Node *head = nullptr;
-    insert(&head, 10);
-    insert(&head, 20);
-    insert(&head, 30);
-    insert(&head, 40);
+    Algo2LL ll;
+    ll.insert(10);
+    ll.insert(20);
+    ll.insert(30);
+    ll.insert(40);
 
     // print the created list
-    printList (head);
-    traverse2 (head);
+    ll.printList ();
+    ll.traverse ();
+    // problem with tail:  there is no tail!
+    // cout <<"Algo 2: calling traverse2(tail)\n";
     // traverse2 (tail);
     // Need to figure out how to traverse list in reverse.
     // printList (head);
@@ -257,8 +303,10 @@ int main2( int argc, char* argv[] )
 }
 
 
-// algo3
+///////////////////////// Algo 3 /////////////////////////
+// Wikipedia points to this code (http://en.wikipedia.org/wiki/XOR_linked_list)
 // http://blog.wsensors.com/2011/04/the-xor-linked-list-in-c/
+// Algo 3 push head, walk head+tail
 
 // Implementation
 // This is the header file for the list.  The behavior of the list is:
@@ -266,18 +314,18 @@ int main2( int argc, char* argv[] )
 //     If there is one entry, head is the entry and tail is 0
 //     If there are 2 or more entries head and tail are both set as are the items npx variable that holds both next and previous
 
-class DoubleLinkedXOR
+class Algo3LL
 {
 public:
-    DoubleLinkedXOR() : head(nullptr), tail(nullptr) { }
-    ~DoubleLinkedXOR(){}
+    Algo3LL()  { head = tail = nullptr; }
+    ~Algo3LL() {while( RemoveFromHead() ); head=tail=nullptr;}
 
     void AddToTail( Node* entry )
     {
-        if( !head ) { //no items
+        if ( !head ) { //no items
             entry->npx = nullptr;
             head = entry;
-        } else if( !tail ) { //just head is set, one item in list
+        } else if ( !tail ) { //just head is set, one item in list
             tail      = entry;
             tail->npx = head;
             head->npx = tail;
@@ -291,12 +339,12 @@ public:
     {
         Node* item = head;
 
-        if( !head ) {
+        if ( !head ) {
             return nullptr;
-        } else if( !tail ) { // just one item
+        } else if ( !tail ) { // just one item
             head      = nullptr;
             return item;
-        } else if( head->npx == tail
+        } else if ( head->npx == tail
                &&  tail->npx == head) { // only two items
             head      = tail;
             tail      = nullptr;
@@ -336,7 +384,7 @@ public:
         return ret;
     }
 private:
-    void traverse( Node *start )  // point to head or tail (cloned from algo1)
+    void traverse( Node *start )  // point to head or tail (cloned from Algo1)
     {
         Node *prev, *curr;
 
@@ -362,21 +410,21 @@ private:
 
 int main3( int argc, char *argv[] )
 {
-    DoubleLinkedXOR  *list = new DoubleLinkedXOR;
+    Algo3LL  *list = new Algo3LL;
 
     int x, count = 10;
 
-    cout << "Algo3:\n";
+    cout << "Algo 3:\n";
     for( x = 0;  x < count; x++ ) { //add all items to list
         list->push(x);
     }
-    cout << "forward:\n";
+    cout << "Algo 3 forward:\n";
     list->traverseForwards( );
     cout << "Backwards:\n";
     list->traverseBackwards( );
 
-    cout <<"Algo 3 popped: ";
-    for( x = 0; x < count; x++ ) {
+    cout <<"Algo 3 Algo 3 popped: ";
+    for ( x = 0; x < count; x++ ) {
         int data = list->pop();
         cout << data <<" ";
     }
@@ -387,9 +435,345 @@ int main3( int argc, char *argv[] )
     return 0;
 }
 
+///////////////////////// Algo 4 /////////////////////////
+// http://eddmann.com/posts/implementing-a-xor-doubly-linked-list-in-c/
+// Algo 4 pop+push+walk from head+tail              <== best algorithm
+// GB converted to c++
+// GB simplified unnecessary A^0 operations using property A^0=A
+// By far, algo 4 is the best algorithm: pop+push+walk from head+tail
+// GB simple, concise, minimal, lean code
+
+class Algo4LL {
+private:
+    Node *head;
+    Node *tail;
+
+public:
+    Algo4LL() : head(nullptr), tail(nullptr) { cout<<"Algo4 ctor "<<this<<endl; }
+    ~Algo4LL() { cout<<"Algo4 dtor "<<this<<endl; clear(); } // (GB)
+    void clear() { // (GB)
+        Node *curr = head;
+        Node *prev = nullptr, *next;
+
+        while (nullptr != curr) {
+            next = (Node*) ((uintptr_t) prev ^ (uintptr_t) curr->npx);
+            prev = curr;
+            curr = next;
+            delete prev;
+        }
+        head=tail=nullptr;
+    }
+    Algo4LL& operator=(const Algo4LL& rhs)  // (GB) assignment operator
+    {
+        if ( this != &rhs ) {
+            clear();
+
+            Node *curr = rhs.head;
+            Node *prev = nullptr, *next;
+
+            while (nullptr != curr) {
+                bool at_tail = true;
+                push( curr->data, at_tail);
+                next = (Node*) ((uintptr_t) prev ^ (uintptr_t) curr->npx);
+                prev = curr;
+                curr = next;
+            }
+        }
+        return *this;
+    }
+    Algo4LL(const Algo4LL& src)   // (GB) copy ctor
+    {
+        head = tail = nullptr;
+        std::cout <<"Algo4LL:: copy ctor: this=" <<this <<" &src="  <<&src <<std::endl;
+        *this = src; // invoke assignment operator
+    }
+
+    void push(int data, bool at_tail)
+    {
+        cout << "adding " << data << (at_tail? " at tail\n": " at head\n");
+        Node *ptr = new Node;
+        ptr->data = data;
+
+        if ( nullptr == head ) { // list is empty.  Add at head.
+            ptr->npx = nullptr;
+            head     = tail = ptr;
+        } else if ( at_tail ) {
+            ptr->npx  = tail;
+            tail->npx = (Node*) ((uintptr_t) ptr ^ (uintptr_t) tail->npx);
+            tail      = ptr;
+        } else {
+            ptr->npx  = head;
+            head->npx = (Node*) ((uintptr_t) ptr ^ (uintptr_t) head->npx);
+            head      = ptr;
+        }
+    }
+    bool pop(int& data, bool from_tail)
+    {
+        if ( nullptr == head ) {
+            cerr << "Empty list.\n";
+            return false;
+        } else if ( from_tail ) { // deleting from tail
+            Node *ptr  = tail;
+            data       = ptr->data;
+            Node *prev = ptr->npx;
+            if ( nullptr == prev )
+                head = nullptr;
+            else
+                prev->npx = (Node*) ((uintptr_t) ptr ^ (uintptr_t) prev->npx);
+            tail = prev;
+            delete ptr;
+            ptr = nullptr;
+        } else {                // deleting from head
+            Node *ptr  = head;
+            data       = ptr->data;
+            Node *next = ptr->npx;
+            if ( nullptr == next )
+                tail = nullptr;
+            else
+                next->npx = (Node*) ((uintptr_t) ptr ^ (uintptr_t) next->npx);
+            head = next;
+            delete ptr;
+            ptr  = nullptr;
+        }
+        return true;
+    }
+    void list(Node *curr, bool verbose=false)
+    {
+        Node *prev = nullptr, *next;
+
+        if ( verbose ) cout <<"tree " << this <<" head="<<head <<" tail=" <<tail <<endl;
+        while (nullptr != curr) {
+            if ( verbose ) {  // (GB)
+                cout << curr << ":";
+                cout << curr->npx << " ";
+                cout << curr->data << endl;
+            } else {
+                cout << curr->data << " ";
+            }
+            next = (Node*) ((uintptr_t) prev ^ (uintptr_t) curr->npx);
+            prev = curr;
+            curr = next;
+        }
+        cout << "\n";
+    }
+    void listFWD(bool verbose=false) // (GB)
+    {
+        list(head,verbose);  // start with head
+    }
+    void listREV(bool verbose=false) // (GB)
+    {
+        list(tail,verbose);  // start with tail
+    }
+};
+
+int main4(int argc, char *argv[])
+{
+    Algo4LL ll;
+    for ( int i = 1; i <= 10; i++ ) {
+        bool fromTail = i < 6;
+        ll.push(i, fromTail);
+    }
+
+    ll.listFWD(); // 10 9 8 7 6 1 2 3 4 5
+
+    int data;
+    for ( int i = 1; i <= 4; i++ ) {
+        bool fromTail = i < 3;
+        ll.pop(data, fromTail);
+        cout << "Algo 4 deleted " << data << (fromTail? " from tail\n": " from head\n");
+    }
+
+    ll.listFWD(); // 8 7 6 1 2 3
+    ll.listFWD(true);
+    cout << "Algo 4 reverse order\n";
+    ll.listREV(); // 8 7 6 1 2 3
+    ll.listREV(true);
+
+    Algo4LL ll2;
+    ll2 = ll;
+    ll2.listFWD();
+
+    Algo4LL ll3 = ll2;;
+    ll3.listFWD();
+
+    return 0;
+}
+
+///////////////////////// Algo 5 /////////////////////////
+// http://cybercrud.net/2012/07/04/complicating-things-with-xor-linked-lists/
+// Algo 5 push head, walk head+tail
+// no pop
+
+class Algo5LL {
+private:
+    Node *head;
+    Node *tail;
+    int count;    // GB debug lost memory
+private:
+    void traverse(Node *root) {
+        Node *current, *prev, *next;
+
+        prev    = nullptr;
+        current = root;
+
+        while (current) {
+            std::cout << "Node found: " << current->data << std::endl;
+
+            next    = nextNode(current, prev);
+            prev    = current;
+            current = next;
+        }
+
+        std::cout << std::endl;
+    }
+    void insertAfter(Node *newNode, int data) {
+        Node *prev, *current, *next;
+
+        prev    = nullptr;
+        current = head;
+
+        while ( current ) {
+            next = nextNode(current, prev);
+
+            if ( current->data == data ) {
+                // Fix the current "next" node
+                if ( next )
+                    next->npx = (Node *) ((uintptr_t) next->npx
+                                        ^ (uintptr_t) current
+                                        ^ (uintptr_t) newNode);
+
+                // Fix current node
+                current->npx = (Node *) ((uintptr_t) newNode
+                                       ^ (uintptr_t) next
+                                       ^ (uintptr_t) current->npx);
+
+                // Fix new node
+                newNode->npx = (Node *) ((uintptr_t) current ^ (uintptr_t) next);
+
+                break;
+            }
+
+            prev    = current;
+            current = next;
+        }
+    }
+
+  public:
+
+    Algo5LL() {head=tail=nullptr; count=0;}
+    ~Algo5LL() { deleteList(); }
+
+    Node *nextNode(Node *node, Node *prevNode) {
+        return ((Node *) ((uintptr_t) node->npx ^ (uintptr_t) prevNode));
+    }
+
+    void deleteList(void) {
+        std::cout << "Algo5: deleteList: node count " << count << std::endl;
+        Node *prev, *current;
+
+        prev    = nullptr;
+        current = head;
+
+        while ( current ) {
+            std::cout << "Node removed: " << current->data << std::endl;
+            current->npx = nextNode(current, prev);
+
+            if ( prev ) {
+                delete prev;
+                count--;    // GB debug lost memory
+                prev = nullptr;
+            }
+
+            if ( !current->npx ) {
+                delete current;
+                current = nullptr;
+                count--;    // GB debug lost memory
+
+                continue;
+            }
+
+            prev    = current;
+            current = current->npx;
+        }
+        head=tail=nullptr;
+
+        std::cout << std::endl;
+    }
+
+    void traverseFWD() {
+        traverse(head);
+    }
+    void traverseREV() {
+        traverse(tail);
+    }
+    void insert(int data) {
+        Node *newNode = new Node;
+
+        if ( !newNode ) {
+            std::cerr << "[ERROR] Failed to insert new node." << std::endl;
+            return;
+        }
+
+        newNode->data = data;
+        newNode->npx = nullptr;
+        count++;    // GB debug lost memory
+
+        std::cout << "Node added: " << newNode->data << std::endl;
+
+        if ( !head )
+            head = tail = newNode;
+        else {
+            insertAfter(newNode, tail->data);
+            tail = newNode;
+        }
+
+        return;
+    }
+};
+
+// main5.cpp
+
+int main5(int argc, char *argv[]) {
+    Algo5LL *list = new Algo5LL;
+
+    int nodeCount;
+
+    if ( argc < 2 ) {
+        std::cerr << "Algo5 usage: " << argv[0] <<  " <nodes>" << std::endl;
+        return 1;
+    }
+
+    nodeCount = atoi(argv[1]);
+
+    std::cout << "Algo 5 # Adding " << nodeCount << " nodes to list" << std::endl;
+
+    for ( int i = 0; i < nodeCount; i++ ) {
+        list->insert(i);
+    }
+
+    std::cout << std::endl;
+
+    std::cout << "Algo 5 # Forward traversal" << std::endl;
+    list->traverseFWD();
+
+    std::cout << "Algo 5 # Backward traversal" << std::endl;
+    list->traverseREV();
+
+    std::cout << "Algo 5 # Removing nodes from list" << std::endl;
+    list->deleteList();
+
+    delete list;
+    list = nullptr;
+
+    return 0;
+}
+
+
 int main( int argc, char* argv[] )
 {
     main1( argc, argv );
     main2( argc, argv );
     main3( argc, argv );
+    main4( argc, argv );
+    main5( argc, argv );
 }

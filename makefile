@@ -1,13 +1,7 @@
 # pm = poly-morphism
 # mi = mulitple-inheritence
 
-ERRORS = \
-	ll-dbl \
-	stl-iterators \
-
-
 ALL = \
-	args \
 	assignment-op \
 	copy-ctor \
 	data \
@@ -32,10 +26,6 @@ ALL = \
 	pm-4 \
 	stack-template \
 	string \
-	stl-algo \
-	stl-vector \
-	strtok \
-	swap-xor \
 	type-id \
 	clocks \
 	myPrintf \
@@ -44,29 +34,19 @@ ALL = \
 	mutable \
 	lambda \
 	OOP344_20141_T1_V1 \
-	ll \
 	ll2 \
-	ll2-problem \
 	q \
 	q2 \
 	str-namespace \
 	cppcallc \
 	getopt \
 	getsubopt \
-	ll-xor \
-	bintree \
-	c++threads \
-	c_str \
-	cirq \
-	copyswap \
-	iter-diy \
-	xor \
+	ll \
 
-ARCH     = -m32
-CXXFLAGS = $(ARCH) -Wall -ggdb -std=c++11
-
-CXX = clang++
 CXX = g++-4.8
+ARCH     = -m32
+CXXFLAGS = $(ARCH) -Wall -ggdb -std=c++0x
+CXXFLAGS = -Wall -ggdb -std=c++0x
 
 all : $(ALL)
 

@@ -16,8 +16,8 @@ int main()
     inventory.push_back("armor");
     inventory.push_back("shield");
 
-    vector<string>::iterator myIterator;
-    vector<string>::const_iterator iter;
+    vector<string>::iterator iter;
+    vector<string>::const_iterator const_iter;
 
     cout << "Your items:\n";
     for (iter = inventory.begin(); iter != inventory.end(); ++iter)

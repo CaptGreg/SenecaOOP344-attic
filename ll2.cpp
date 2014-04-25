@@ -93,6 +93,8 @@ LL& LL::operator=(const LL& src) // assignment operator
             pSrc = pSrc->next();
         }
         pDst->next( nullptr );
+    } else {
+        cout << "someone called assignment operator with this==&src " <<this <<endl;
     }
     return *this;
 }
@@ -239,6 +241,12 @@ int main(int argc, char**argv)
 
   LL ll3 = *ll;
   ll3.Print("ll3");
+
+  ll3 = ll3;
+
+  cout <<"ll=" << ll <<endl;
+  cout <<"ll2=" << &ll2 <<endl;
+  cout <<"ll3=" << &ll3 <<endl;
 
   delete ll;
 }
