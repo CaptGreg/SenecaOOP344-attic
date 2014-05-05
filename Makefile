@@ -14,7 +14,6 @@ CC  = gcc
 
 ERRORS = \
 	ll-dbl \
-	stl-iterators \
 
 
 ALL = \
@@ -72,6 +71,9 @@ ALL = \
 	iter-diy \
 	xor \
 	cppthreads \
+	stl-iterator \
+	stl-iterator2 \
+	stl-iterator3 \
 
 all : $(ALL)
 

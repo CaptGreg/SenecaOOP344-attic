@@ -14,38 +14,46 @@
 // using standard exceptions
 #include <iostream>
 #include <exception>
+#include <math.h>
 using namespace std;
 
 class myexception: public exception
 {
+  public:
   virtual const char* what() const throw()
   {
     return "My exception happened";
   }
 } myex;
 
-int main (int argc, char**argv) {
-  try
-  {
-    // GB START
+int main (int argc, char**argv) 
+{
+  try {
+    throw "what happened?";
+  } catch(const char* msg) {
+    cerr << "const char* exception caught: " << msg <<  endl;
+  }
+
+  try {
+    throw myex;
+  } catch(myexception& e) {
+    cerr << "myexception& caught: " << e.what() << endl;
+  }
+
+  try {
     long long size = 1000 * 1000 * 1000;
-    if(argc > 1) size *= atoi(*++argv);
+    if(argc > 1) size *= atoi( *(argv+1) );
     double *p = new double [size];
     delete [] p;
-    // GB STOP
+  } catch (exception& e) {
+    cout << "standard exceptio " << e.what() << '\n';
+  }
 
-    throw myex;
+  try {
+    asin(2.0);  // arcsine range error
+  } catch (exception& e) {
+    cout << "asin(2.0) standard exception& " << e.what() << '\n';
   }
-  catch (std::bad_alloc& ba){ // GB
-    cerr << "bad_alloc caught: " << ba.what() << endl;
-  }
-  catch (exception& e)
-  {
-    cout << "standard exception " << e.what() << '\n';
-  }
-  catch (...)   // GB
-  {
-    cout << "caught ...\n";
-  }
+
   return 0;
 }
