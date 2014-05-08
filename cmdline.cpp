@@ -30,5 +30,4 @@ int main(int argc, char ** argv, char ** env)
     target = setBit(target, bit);
     cout << "bit = " <<bit <<", target=" << target <<endl;
   }
-
 }
