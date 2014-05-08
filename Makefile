@@ -2,14 +2,16 @@
 # mi = mulitple-inheritence
 
 ARCH     = -m32
-CXXFLAGS = $(ARCH) -Wall -ggdb -std=c++11 -pthread
 
 CXX = clang++
 CC  = clang
-CXX = g++-4.8
-CC  = gcc-4.8
+CXXFLAGS = $(ARCH) -Wall -ggdb -std=c++11 -pthread
 CXX = g++
 CC  = gcc
+CXXFLAGS = $(ARCH) -Wall -ggdb -std=c++0x -pthread
+CXX = g++-4.8
+CC  = gcc-4.8
+CXXFLAGS = $(ARCH) -Wall -ggdb -std=c++11 -pthread
 
 
 ERRORS = \
