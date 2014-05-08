@@ -1,20 +1,34 @@
 #include <iostream>
-using namespace std;    // because I'm lazy and want to avoid saying std:: all over the place`
+using namespace std;
 
-#include <cstdio>       // for printf
+int setBit(int target, int bit)
+{
+  int mask = (1 << bit);
+  return target | mask;
+}
 
 int main(int argc, char ** argv, char ** env)
 {
   cout << "cout: argc = " << argc << endl;
-  for(int i = 0; i < argc; i++)
-     cout << "cout: argv[" << i << "] ==>" << argv[i] << "<==\n";
+  for(int row = 0; row < argc; row++)
+     cout << "cout: argv[" << row << "] ==>" << argv[row] << "<==\n";
 
-  for(int i = 0; env[i]; i++)
-     cout << "cout: env["<<i<<"]==>"<<env[i]<<"<==\n";
+  for(int row = 0; env[row]; row++) {
+     cout << "cout: env["<<row<<"]==>"<<env[row]<<"<==\n";
+     
+     char *p = env[row];
+     int column = 0;
+     while(*p) {
+        cout <<  "[" << row << "][" << column <<"] = " << *p << endl;
+        p++;
+        column++;
+     }
+  }
 
-  printf("printf: argc = %d\n", argc );
-  for(int i = 0; i < argc; i++)
-     printf("printf: argv[%d] ==>%s<==\n", i, argv[i]);
-  for(int i = 0; env[i]; i++)
-     printf("printf: env[%d] ==>%s<==\n", i, env[i]);
+  for( int bit = 0; bit < 8; bit++ ) {
+    int target = 0;
+    target = setBit(target, bit);
+    cout << "bit = " <<bit <<", target=" << target <<endl;
+  }
+
 }

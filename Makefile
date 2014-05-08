@@ -2,14 +2,16 @@
 # mi = mulitple-inheritence
 
 ARCH     = -m32
-CXXFLAGS = $(ARCH) -Wall -ggdb -std=c++11 -pthread
 
 CXX = clang++
 CC  = clang
-CXX = g++-4.8
-CC  = gcc-4.8
+CXXFLAGS = $(ARCH) -Wall -ggdb -std=c++11 -pthread
 CXX = g++
 CC  = gcc
+CXXFLAGS = $(ARCH) -Wall -ggdb -std=c++0x -pthread
+CXX = g++-4.8
+CC  = gcc-4.8
+CXXFLAGS = $(ARCH) -Wall -ggdb -std=c++11 -pthread
 
 
 ERRORS = \
@@ -19,12 +21,33 @@ ERRORS = \
 ALL = \
 	args \
 	assignment-op \
+	bintree \
+	bits \
+	cirq \
+	clocks \
+	cmdline \
 	copy-ctor \
+	copyswap \
+	cppcallc \
+	cppthreads \
+	c_str \
 	data \
 	derived-class \
+	exceptions \
+	expression-templates \
+	file-in-out \
 	files \
 	GB-templates \
+	getopt \
+	getsubopt \
 	inheritance \
+	initialize \
+	iter-diy \
+	lambda \
+	ll \
+	ll2 \
+	ll2-problem \
+	ll-xor \
 	max-template \
 	mi-1 \
 	mi-2 \
@@ -34,46 +57,32 @@ ALL = \
 	mi-6 \
 	mi-7 \
 	mi-diamond \
+	mutable \
+	myPrintf \
+	OOP344_20141_T1_V1 \
 	overload \
 	overload-op \
+	parser \
 	pm-1 \
 	pm-2 \
 	pm-3 \
 	pm-4 \
-	stack-template \
-	string \
-	stl-algo \
-	stl-vector \
-	strtok \
-	swap-xor \
-	type-id \
-	clocks \
-	myPrintf \
-	exceptions \
-	initialize \
-	mutable \
-	lambda \
-	OOP344_20141_T1_V1 \
-	ll \
-	ll2 \
-	ll2-problem \
 	q \
 	q2 \
-	str-namespace \
-	cppcallc \
-	getopt \
-	getsubopt \
-	ll-xor \
-	bintree \
-	c_str \
-	cirq \
-	copyswap \
-	iter-diy \
-	xor \
-	cppthreads \
+	rpncalc \
+	rpncalc2 \
+	stack-template \
+	stl-algo \
 	stl-iterator \
 	stl-iterator2 \
 	stl-iterator3 \
+	stl-vector \
+	string \
+	str-namespace \
+	strtok \
+	swap-xor \
+	type-id \
+	xor \
 
 all : $(ALL)
 
