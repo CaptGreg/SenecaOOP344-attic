@@ -17,9 +17,11 @@ int main()
 
     cout << "Creating a list of scores.";
     vector<int> scores;
-    scores.push_back(1500);
     scores.push_back(3500);
     scores.push_back(7500);
+    scores.push_back(1234);
+    scores.push_back(5678);
+    scores.push_back(1500);
 
     cout << "\nHigh Scores:\n";
     for (iter = scores.begin(); iter != scores.end(); ++iter)

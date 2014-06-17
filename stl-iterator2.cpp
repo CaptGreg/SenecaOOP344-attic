@@ -28,7 +28,7 @@ void printContainer11(T& container)
 
 int main()
 {
-   // create a vector to store int
+   // create a vector to store double
    vector<double> vec; 
    vector<double>::iterator v;
    // vector<int> vec; 

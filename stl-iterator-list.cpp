@@ -6,20 +6,20 @@
 
 #include <iostream>
 #include <string>
-#include <vector>
+#include <list>
 
 using namespace std;
 
 int main()
 {
-    vector<string> inventory;
-    vector<string>::iterator myIterator;
+    list<string> inventory;
+    list<string>::iterator myIterator;
     inventory.push_back("sword");
     inventory.push_back("armor");
     inventory.push_back("shield");
 
-    vector<string>::iterator iter;
-    vector<string>::const_iterator const_iter;
+    list<string>::iterator iter;
+    list<string>::const_iterator const_iter;
 
     cout << "Your items:\n";
     for (iter = inventory.begin(); iter != inventory.end(); ++iter)

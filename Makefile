@@ -1,29 +1,32 @@
 # pm = poly-morphism
 # mi = mulitple-inheritence
 
-ARCH     = -m32
+#ARCH     = -m32
 
 CXX = clang++
 CC  = clang
 CXXFLAGS = $(ARCH) -Wall -ggdb -std=c++11 -pthread
-CXX = g++
-CC  = gcc
-CXXFLAGS = $(ARCH) -Wall -ggdb -std=c++0x -pthread
+
 CXX = g++-4.8
 CC  = gcc-4.8
 CXXFLAGS = $(ARCH) -Wall -ggdb -std=c++11 -pthread
 
-
-ERRORS = \
-	ll-dbl \
-
+CXX = g++
+CC  = gcc
+CXXFLAGS = $(ARCH) -Wall -ggdb -std=c++0x -pthread
 
 ALL = \
 	args \
 	assignment-op \
 	bintree \
 	bits \
+	bitshiftsigned \
+	bitshift \
+	bitshift2 \
+	char-arith \
 	cirq \
+	cl \
+	cl2 \
 	clocks \
 	cmdline \
 	copy-ctor \
@@ -35,11 +38,12 @@ ALL = \
 	derived-class \
 	exceptions \
 	expression-templates \
+	factorial \
+	fibonacci \
 	file-in-out \
 	files \
 	GB-templates \
 	getopt \
-	getsubopt \
 	inheritance \
 	initialize \
 	iter-diy \
@@ -47,6 +51,10 @@ ALL = \
 	ll \
 	ll2 \
 	ll2-problem \
+	ll3 \
+	ll4 \
+	ll5 \
+	ll6 \
 	ll-xor \
 	max-template \
 	mi-1 \
@@ -69,13 +77,15 @@ ALL = \
 	pm-4 \
 	q \
 	q2 \
-	rpncalc \
-	rpncalc2 \
+	stack-array \
+	stl-calc \
+	stl-calc2 \
 	stack-template \
 	stl-algo \
 	stl-iterator \
 	stl-iterator2 \
 	stl-iterator3 \
+	stl-stack \
 	stl-vector \
 	string \
 	str-namespace \
@@ -95,10 +105,6 @@ cppcallc  : cppcallc.cpp cfun.h cfun.c
 	$(CXX) -c cppcallc.cpp
 	$(CC) -c cfun.c
 	$(CXX) cppcallc.o cfun.o -o cppcallc
-
-cppthreads : cppthreads.cpp Makefile
-	$(CXX) $(CXXFLAGS) -pthread   cppthreads.cpp -o cppthreads
-
 
 clean:
 	rm $(ALL) *.o
