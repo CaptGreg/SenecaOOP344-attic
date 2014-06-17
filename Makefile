@@ -80,6 +80,7 @@ ALL = \
 	stack-array \
 	stl-calc \
 	stl-calc2 \
+	stl-calc3 \
 	stack-template \
 	stl-algo \
 	stl-iterator \
